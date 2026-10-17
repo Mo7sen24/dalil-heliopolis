@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>دليل هليوبوليس الجديدة</title>
 <meta name="theme-color" content="#0B1F3A">
-<meta name="description" content="دليل هليوبوليس الجديدة: محلات وصنايعية وخدمات وشقق للبيع في مكان واحد، بأرقام مباشرة واتصال وواتساب وموقع على الخريطة.">
+<meta name="description" content="دليل هليوبوليس الجديدة: محلات وصنايعية وخدمات وشقق للبيع والإيجار في مكان واحد، بأرقام مباشرة واتصال وواتساب وموقع على الخريطة.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230B1F3A'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23F5B400'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -134,7 +134,7 @@ footer p{margin:0 0 6px}
 </header>
 <section class="hero">
   <h1>كل اللي محتاجه في مدينتك، في مكان واحد</h1>
-  <p>محلات وصنايعية وخدمات وشقق للبيع، بأرقام مباشرة وموقع على الخريطة.</p>
+  <p>محلات وصنايعية وخدمات وشقق للبيع والإيجار، بأرقام مباشرة وموقع على الخريطة.</p>
   <div class="search" role="search">
     <input id="q" type="search" placeholder="ابحث: سباك، صيدلية، سوبر ماركت..." aria-label="بحث">
     <button class="clr" id="clr" type="button" aria-label="مسح البحث" hidden>✕</button>
@@ -154,7 +154,7 @@ footer p{margin:0 0 6px}
 <h2 id="hList">الخدمات والمحلات</h2>
 <div class="grid" id="list" aria-live="polite"></div>
 
-<h2 id="hFlats">شقق للبيع</h2>
+<h2 id="hFlats">شقق للبيع والإيجار</h2>
 <div class="grid" id="flats"></div>
 
 <footer>
@@ -226,8 +226,12 @@ footer p{margin:0 0 6px}
 </dialog>
 
 <script>
-var IC={"الكل":"🏙️","سوبر ماركت":"🛒","صيدليات":"💊","مطاعم وكافيهات":"🍽️","سباكة":"🔧","كهرباء":"💡","نجارة وتشطيب":"🪚","تكييف وصيانة":"❄️","ميكانيكا":"🚗","تعليم":"📚","نقل وتوصيل":"🚚","أخرى":"🛠️","شقة للبيع":"🏠"};
+var IC={"الكل":"🏙️","سوبر ماركت":"🛒","صيدليات":"💊","مطاعم وكافيهات":"🍽️","سباكة":"🔧","كهرباء":"💡","نجارة وتشطيب":"🪚","تكييف وصيانة":"❄️","ميكانيكا":"🚗","تعليم":"📚","نقل وتوصيل":"🚚","أخرى":"🛠️","شقة للبيع":"🏠","شقة للإيجار":"🔑"};
 var CATS=Object.keys(IC);
+var FLAT_CATS=["شقة للبيع","شقة للإيجار"];
+function isFlat(c){return FLAT_CATS.indexOf(c)>-1}
+/* ترتيب الشقق بالسعر: كل نوع لوحده (البيع الأول ثم الإيجار) */
+function fcmp(a,b,d){return ((a.c==="شقة للإيجار")-(b.c==="شقة للإيجار"))||d*(a._p-b._p)}
 var items=[
 {n:"سوبر ماركت النور",c:"سوبر ماركت",a:"الحي الأول",p:"01000000001",hr:"9-23"},
 {n:"صيدلية الشفاء",c:"صيدليات",a:"الحي الثاني",p:"01000000002",hr:"24"},
@@ -249,7 +253,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){retur
 /* توحيد الحروف العربية للبحث */
 function nz(s){return String(s==null?"":s).toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي")}
 /* نحسب نص البحث الموحّد مرة واحدة لكل عنصر */
-function prep(){items.forEach(function(i){i._s=nz(i.n+" "+i.c+" "+i.a+" "+(i.nt||""))});flats.forEach(function(f){f._s=nz(f.n+" "+f.a+" "+(f.nt||""));f._p=parseInt(String(f.pr||"").replace(/\D/g,""),10)||0})}
+function prep(){items.forEach(function(i){i._s=nz(i.n+" "+i.c+" "+i.a+" "+(i.nt||""))});flats.forEach(function(f){f.c=f.c||"شقة للبيع";f._s=nz(f.n+" "+f.c+" "+f.a+" "+(f.nt||""));f._p=parseInt(String(f.pr||"").replace(/\D/g,""),10)||0})}
 function hl(t,q){t=String(t==null?"":t);if(!q)return esc(t);var nt=nz(t),nq=nz(q),i=nt.length===t.length&&nq?nt.indexOf(nq):-1;if(i<0)return esc(t);return esc(t.slice(0,i))+"<mark>"+esc(t.slice(i,i+nq.length))+"</mark>"+esc(t.slice(i+nq.length))}
 function img(u){return u&&/^https?:\/\//i.test(u)?esc(u):""}
 var NOMAP=["سباكة","كهرباء","نجارة وتشطيب","تكييف وصيانة","ميكانيكا","نقل وتوصيل","أخرى"];
@@ -268,7 +272,7 @@ function skel(n){var s="";for(var k=0;k<n;k++)s+='<article class="card sk" aria-
 function card(i,x){var im=img(i.im);
   return '<article class="card" style="--i:'+Math.min(x,8)+'"><div class="head"><div class="ico">'+(IC[i.c]||"📍")+(im?'<img src="'+im+'" alt="" width="46" height="46" loading="lazy" decoding="async" referrerpolicy="no-referrer">':"")+'</div><div><h3>'+hl(i.n,SQ)+'</h3><span class="tag">'+hl(i.c,SQ)+'</span></div></div><p class="meta">'+hl(i.a,SQ)+'</p>'+(i.nt?'<p class="nt">📝 '+esc(i.nt)+'</p>':"")+stat(i.hr)+acts(i.p,i.n,i.a,i.c,i.l,"",i.wa)+'</article>'}
 function flatCard(f,x){var im=img(f.im);
-  return '<article class="card" style="--i:'+Math.min(x,8)+'">'+(im?'<img class="fimg" src="'+im+'" alt="" width="640" height="360" loading="lazy" decoding="async" referrerpolicy="no-referrer">':"")+'<div class="head"><div class="ico">🏠</div><div><h3>'+hl(f.n,SQ)+'</h3><span class="tag">للبيع</span></div></div><p class="meta">'+hl(f.a,SQ)+' - '+esc(f.s)+'</p><div class="price">'+esc(f.pr)+'</div>'+(f.nt?'<p class="nt">📝 '+esc(f.nt)+'</p>':"")+acts(f.p,f.n,f.a,"شقة للبيع",f.l,f.n+" - "+f.pr+" - "+f.a+" | دليل هليوبوليس الجديدة\n"+location.href.split("#")[0],f.wa)+'</article>'}
+  return '<article class="card" style="--i:'+Math.min(x,8)+'">'+(im?'<img class="fimg" src="'+im+'" alt="" width="640" height="360" loading="lazy" decoding="async" referrerpolicy="no-referrer">':"")+'<div class="head"><div class="ico">'+(IC[f.c]||"🏠")+'</div><div><h3>'+hl(f.n,SQ)+'</h3><span class="tag">'+(f.c==="شقة للإيجار"?"للإيجار":"للبيع")+'</span></div></div><p class="meta">'+hl(f.a,SQ)+' - '+esc(f.s)+'</p><div class="price">'+esc(f.pr)+(f.c==="شقة للإيجار"&&!/شهر/.test(f.pr||"")?" / شهرياً":"")+'</div>'+(f.nt?'<p class="nt">📝 '+esc(f.nt)+'</p>':"")+acts(f.p,f.n,f.a,f.c,f.l,f.n+" - "+(f.c==="شقة للإيجار"?"للإيجار: ":"للبيع: ")+f.pr+" - "+f.a+" | دليل هليوبوليس الجديدة\n"+location.href.split("#")[0],f.wa)+'</article>'}
 function moreBtn(k,left){return left>0?'<button class="btn alt more" type="button" data-k="'+k+'">عرض المزيد ('+left+')</button>':""}
 function emptyBox(m){return '<div class="empty"><b>🔍</b><span>'+m+'</span><button class="btn" type="button" data-add="1">أضف نشاطك</button></div>'}
 function renderCats(){var sl=$("cats").scrollLeft;$("cats").innerHTML=CATS.map(function(c){return '<button class="cat" type="button" aria-pressed="'+(c===cur)+'" data-c="'+c+'"><span>'+IC[c]+'</span>'+c+'</button>'}).join("");$("cats").scrollLeft=sl}
@@ -276,7 +280,7 @@ function renderDist(){var s={};items.concat(flats).forEach(function(x){if(/^(ا�
   $("dist").innerHTML='<option value="">كل الأحياء</option>'+k.map(function(a){return '<option'+(a===DIST?" selected":"")+'>'+esc(a)+'</option>'}).join("")}
 function inArea(a){return !DIST||a===DIST||a.indexOf("يخدم")>-1||a.indexOf("داخل")>-1}
 /* قسم الشقق في "الكل" بيظهر بس لو في شقق فعلاً */
-function vis(){var s=cur!=="شقة للبيع",f=(cur==="الكل"&&flats.length>0)||cur==="شقة للبيع";[["hList","list"],["hFlats","flats"]].forEach(function(x,i){var on=i?f:s;$(x[0]).style.display=$(x[1]).style.display=on?"":"none"});if(cur==="الكل")$("hList").style.display="none"}
+function vis(){var s=!isFlat(cur),f=(cur==="الكل"&&flats.length>0)||isFlat(cur);$("hFlats").textContent=cur==="شقة للبيع"?"شقق للبيع":cur==="شقة للإيجار"?"شقق للإيجار":"شقق للبيع والإيجار";[["hList","list"],["hFlats","flats"]].forEach(function(x,i){var on=i?f:s;$(x[0]).style.display=$(x[1]).style.display=on?"":"none"});if(cur==="الكل")$("hList").style.display="none"}
 /* في "الكل": كل تصنيف في قسم لوحده بعنوانه */
 function groups(r){var by={};r.forEach(function(i){(by[i.c]=by[i.c]||[]).push(i)});
   var ks=CATS.slice(1).filter(function(c){return by[c]}).concat(Object.keys(by).filter(function(c){return CATS.indexOf(c)<0}));
@@ -292,10 +296,10 @@ function render(){
   if(SORT==="n")r.sort(function(a,b){return a.n.localeCompare(b.n,"ar")});
   var grp=cur==="الكل";$("list").classList.toggle("g",grp&&r.length>0);
   $("list").innerHTML=r.length?(grp?groups(r):r.slice(0,SL).map(card).join("")+moreBtn("l",r.length-SL)):LOADING?skel(6):ERR?'<div class="empty">تعذر تحميل الدليل، حدّث الصفحة.</div>':emptyBox("مفيش نتائج. جرّب كلمة تانية أو غيّر الحي.");
-  var fl=flats.filter(function(f){return inArea(f.a)&&(!nq||f._s.indexOf(nq)>-1)});
-  if(SORT==="pa")fl.sort(function(a,b){return a._p-b._p});else if(SORT==="pd")fl.sort(function(a,b){return b._p-a._p});
-  $("flats").innerHTML=fl.length?fl.slice(0,SF).map(flatCard).join("")+moreBtn("f",fl.length-SF):LOADING?skel(3):'<div class="empty">لا توجد شقق معروضة حالياً.</div>';
-  var n=0;if(cur!=="شقة للبيع")n+=r.length;if(cur==="الكل"||cur==="شقة للبيع")n+=fl.length;
+  var fl=flats.filter(function(f){return (cur==="الكل"||f.c===cur)&&inArea(f.a)&&(!nq||f._s.indexOf(nq)>-1)});
+  if(SORT==="pa")fl.sort(function(a,b){return fcmp(a,b,1)});else if(SORT==="pd")fl.sort(function(a,b){return fcmp(a,b,-1)});
+  $("flats").innerHTML=fl.length?fl.slice(0,SF).map(flatCard).join("")+moreBtn("f",fl.length-SF):LOADING?skel(3):'<div class="empty">'+(cur==="شقة للإيجار"?"لا توجد شقق للإيجار حالياً.":cur==="شقة للبيع"?"لا توجد شقق للبيع حالياً.":"لا توجد شقق معروضة حالياً.")+'</div>';
+  var n=0;if(!isFlat(cur))n+=r.length;if(cur==="الكل"||isFlat(cur))n+=fl.length;
   $("cnt").textContent=(q||DIST||cur!=="الكل")&&!LOADING&&n?cntText(n):"";
   $("clr").hidden=!$("q").value;LASTN=LOADING?1:n;
   ANIM=false}
@@ -310,7 +314,7 @@ $("q2").addEventListener("input",function(){onQ(this.value)});
 $("go").addEventListener("click",function(){resetN();render()});
 $("clr").addEventListener("click",function(){onQ("");$("q").focus()});
 $("catSel").innerHTML=CATS.slice(1).map(function(c){return "<option>"+c+"</option>"}).join("");
-function setFields(){var v=$("catSel").value;$("flatFields").style.display=v==="شقة للبيع"?"grid":"none";$("locField").style.display=NOMAP.indexOf(v)>-1?"none":"grid"}
+function setFields(){var v=$("catSel").value;$("flatFields").style.display=isFlat(v)?"grid":"none";document.querySelector('[name="pr"]').placeholder=v==="شقة للإيجار"?"مثال: 8,000 ج.م / شهرياً":"مثال: 2,400,000 ج.م";$("locField").style.display=NOMAP.indexOf(v)>-1?"none":"grid"}
 $("catSel").onchange=setFields;
 var tt;function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on")},4000)}
 function fmsg(m){$("fmsg").textContent=m||""}
@@ -334,7 +338,7 @@ $("dSearch").onclick=function(){scrollTo({top:0,behavior:"smooth"});setTimeout(f
 /* زر الشقق: لو مفيش شقق نفتح تصنيف "شقة للبيع" عشان تظهر رسالة فاضي */
 $("dFlats").onclick=function(){
   if(!flats.length){cur="شقة للبيع";resetN();renderCats();render();scrollTo({top:0,behavior:"smooth"});return}
-  if(cur!=="الكل"&&cur!=="شقة للبيع"){cur="الكل";resetN();renderCats();render()}
+  if(cur!=="الكل"&&!isFlat(cur)){cur="الكل";resetN();renderCats();render()}
   $("hFlats").scrollIntoView({behavior:"smooth"})};
 
 $("theme").onclick=function(){var d=document.documentElement,c=d.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"),nx=c==="dark"?"light":"dark";d.setAttribute("data-theme",nx);try{localStorage.setItem("hd_theme",nx)}catch(e){}};
@@ -379,7 +383,7 @@ function load(){if(!SHEET_CSV_URL)return;
       if(!r[0]||!r[1]||!r[3])return;
       /* العمود I (رقم 9) = ساعات العمل، مثال: 9-23 أو 24 */
       var o={n:r[0].trim(),c:r[1].trim(),a:(r[2]||"").trim()||"هليوبوليس الجديدة",p:fixPhone(r[3]),pr:(r[4]||"").trim(),s:(r[5]||"").trim(),l:(r[6]||"").trim(),im:(r[7]||"").trim(),hr:(r[8]||"").trim(),wa:(r[9]||"").trim(),nt:(r[10]||"").trim()};
-      (o.c==="شقة للبيع"?fl:it).push(o)});
+      (isFlat(o.c)?fl:it).push(o)});
     var js=JSON.stringify({it:it,fl:fl}),prev=null,wasEmpty=!items.length&&!flats.length;
     try{prev=localStorage.getItem("hd_cache")}catch(e){}
     items=it;flats=fl;prep();renderDist();LOADING=false;ERR=false;
