@@ -275,7 +275,8 @@ function renderCats(){var sl=$("cats").scrollLeft;$("cats").innerHTML=CATS.map(f
 function renderDist(){var s={};items.concat(flats).forEach(function(x){if(/^(الحي|المنطقة)/.test(x.a))s[x.a]=1});var k=Object.keys(s).sort(function(a,b){return a.localeCompare(b,"ar")});if(DIST&&!s[DIST])DIST="";
   $("dist").innerHTML='<option value="">كل الأحياء</option>'+k.map(function(a){return '<option'+(a===DIST?" selected":"")+'>'+esc(a)+'</option>'}).join("")}
 function inArea(a){return !DIST||a===DIST||a.indexOf("يخدم")>-1||a.indexOf("داخل")>-1}
-function vis(){var s=cur!=="شقة للبيع",f=cur==="الكل"||cur==="شقة للبيع";[["hList","list"],["hFlats","flats"]].forEach(function(x,i){var on=i?f:s;$(x[0]).style.display=$(x[1]).style.display=on?"":"none"});if(cur==="الكل")$("hList").style.display="none"}
+/* قسم الشقق في "الكل" بيظهر بس لو في شقق فعلاً */
+function vis(){var s=cur!=="شقة للبيع",f=(cur==="الكل"&&flats.length>0)||cur==="شقة للبيع";[["hList","list"],["hFlats","flats"]].forEach(function(x,i){var on=i?f:s;$(x[0]).style.display=$(x[1]).style.display=on?"":"none"});if(cur==="الكل")$("hList").style.display="none"}
 /* في "الكل": كل تصنيف في قسم لوحده بعنوانه */
 function groups(r){var by={};r.forEach(function(i){(by[i.c]=by[i.c]||[]).push(i)});
   var ks=CATS.slice(1).filter(function(c){return by[c]}).concat(Object.keys(by).filter(function(c){return CATS.indexOf(c)<0}));
@@ -330,7 +331,11 @@ $("askForm").addEventListener("submit",function(e){e.preventDefault();var f=new 
   window.open("https://wa.me/"+ASK_NUM+"?text="+encodeURIComponent(m),"_blank","noopener");this.reset();$("askDlg").close()});
 $("openAdd").onclick=openAdd;$("dAdd").onclick=openAdd;$("cancel").onclick=function(){$("dlg").close()};
 $("dSearch").onclick=function(){scrollTo({top:0,behavior:"smooth"});setTimeout(function(){$("q").focus()},350)};
-$("dFlats").onclick=function(){if(cur!=="الكل"&&cur!=="شقة للبيع"){cur="الكل";resetN();renderCats();render()}$("hFlats").scrollIntoView({behavior:"smooth"})};
+/* زر الشقق: لو مفيش شقق نفتح تصنيف "شقة للبيع" عشان تظهر رسالة فاضي */
+$("dFlats").onclick=function(){
+  if(!flats.length){cur="شقة للبيع";resetN();renderCats();render();scrollTo({top:0,behavior:"smooth"});return}
+  if(cur!=="الكل"&&cur!=="شقة للبيع"){cur="الكل";resetN();renderCats();render()}
+  $("hFlats").scrollIntoView({behavior:"smooth"})};
 
 $("theme").onclick=function(){var d=document.documentElement,c=d.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"),nx=c==="dark"?"light":"dark";d.setAttribute("data-theme",nx);try{localStorage.setItem("hd_theme",nx)}catch(e){}};
 
@@ -385,8 +390,9 @@ function load(){if(!SHEET_CSV_URL)return;
 var LOADING=!!SHEET_CSV_URL,ERR=false;
 if(LOADING){
   items=[];flats=[];
+  /* لو في كاش صالح: نعرضه فوراً من غير skeleton، والتحديث بيتم في الخلفية */
   try{var ct=+localStorage.getItem("hd_cache_t")||0,cc=JSON.parse(localStorage.getItem("hd_cache")||"null");
-    if(cc&&cc.it&&cc.fl&&Date.now()-ct<TTL){items=cc.it;flats=cc.fl}}catch(e){}
+    if(cc&&cc.it&&cc.fl&&Date.now()-ct<TTL){items=cc.it;flats=cc.fl;LOADING=false}}catch(e){}
 }
 prep();
 
